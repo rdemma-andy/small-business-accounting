@@ -11,14 +11,6 @@ generator client {
   provider = "prisma-client-js"
 }
 
-model Example {
-    id        Int      @id @default(autoincrement())
-    name      String
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
-
-    @@index([name])
-}
 
 model Transaction {
     id        String      @id @default(cuid())
