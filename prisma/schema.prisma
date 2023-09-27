@@ -19,3 +19,37 @@ model Example {
 
     @@index([name])
 }
+
+model Transaction {
+    id        String      @id @default(cuid())
+    createdAt DateTime @default(now())
+    date      DateTime
+    transactionNumber    Int
+    amount    Float
+    gLCode    GeneralLedgerCode @relation(fields: [gLCodeId], references: [id])
+    gLCodeId  String 
+    vendor    Vendor @relation(fields: [vendorId], references: [id])
+    vendorId  String
+
+    @@index([gLCodeId])
+    @@index([vendorId])
+}
+
+model Vendor {
+    id        String      @id @default(cuid())
+    createdAt DateTime @default(now())
+    description String
+    gLCode     GeneralLedgerCode @relation(fields: [gLCodeId], references: [id])
+    gLCodeId  String 
+    transactions Transaction[]
+
+    @@index([gLCodeId])
+}
+
+model GeneralLedgerCode {
+    id        String      @id @default(cuid())
+    name      String
+    number    Int
+    vendors   Vendor[]
+    transactions Transaction[]
+}
