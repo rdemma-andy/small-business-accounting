@@ -4,7 +4,7 @@ import Link from "next/link";
 import { api } from "~/utils/api";
 
 export default function Home() {
-  const  transactions  = api.transactions.getAll.useQuery();
+  const  transactions  = api.transactions.getAllwithCodeAndVendor.useQuery();
 
   console.log(transactions.data)
 
@@ -17,7 +17,7 @@ export default function Home() {
       </Head>
       <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-[#2e026d] to-[#15162c]">
       <div>
-        {transactions.data?.map((transaction) => (<div key={transaction.id}>{transaction.transactionNumber}</div>))}
+        {transactions.data?.map((transaction) => (<div key={transaction.id}>{transaction.transactionNumber} , {transaction.date.toUTCString()} , {transaction.vendor.description} , {transaction.gLCode.number} , {transaction.amount}</div>))}
       </div>
       </main>
     </>
