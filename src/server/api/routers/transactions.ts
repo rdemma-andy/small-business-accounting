@@ -4,7 +4,9 @@ import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
 
 export const transactionsRouter = createTRPCRouter({
   getAllwithCodeAndVendor: publicProcedure.query(({ ctx }) => {
-    return ctx.db.transaction.findMany({
+    const transactions =  ctx.db.transaction.findMany({
+      take: 100,
+      orderBy: [{transactionNumber: "desc"}],
       include: {
         vendor : {
           select : {
@@ -19,6 +21,7 @@ export const transactionsRouter = createTRPCRouter({
 
       }
     })
+    return transactions;
   }),
   getAll: publicProcedure.query(({ ctx }) => {
     return ctx.db.transaction.findMany();
