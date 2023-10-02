@@ -1,6 +1,7 @@
+import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
-import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
+import { createTRPCRouter, privateProcedure, publicProcedure } from "~/server/api/trpc";
 
 export const transactionsRouter = createTRPCRouter({
   getAllwithCodeAndVendor: publicProcedure.query(({ ctx }) => {
@@ -25,5 +26,26 @@ export const transactionsRouter = createTRPCRouter({
   }),
   getAll: publicProcedure.query(({ ctx }) => {
     return ctx.db.transaction.findMany();
+  }),
+  create: privateProcedure.input(
+    z.object({
+      transactionNumber: z.number(),
+      vendor: z.string(),
+      glCode: z.string(),
+      amount: z.number(),
+      date: z.string(),
+    })
+  )
+  .mutation(async ({ ctx, input }) => {
+
+    const { success } = await ratelimit.limit(authorId);
+    if (!success) throw new TRPCError({ code: "TOO_MANY_REQUESTS" });
+
+    const transaction = await ctx.db.transaction.create({
+      data: {
+      },
+    });
+
+    return transaction;
   }),
 });

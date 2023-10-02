@@ -1,12 +1,72 @@
-import { SignInButton } from "@clerk/nextjs";
+import { SignInButton, useUser } from "@clerk/nextjs";
 import Head from "next/head";
 import Link from "next/link";
+import { useState } from "react";
 import { TransactionView } from "~/components/transactionCard";
 type TransactionData = RouterOutputs["transactions"]["getAllwithCodeAndVendor"][number];
 
 import { RouterOutputs, api } from "~/utils/api";
 
+
+const CreateTransactionWizard = () => {
+  const { user } = useUser();
+
+  const [input, setInput] = useState("");
+
+  const ctx = api.useContext();
+
+  const { mutate, isLoading: isPosting } = api.transactions.create.useMutation({
+    onSuccess: () => {
+      setInput("");
+      void ctx.transactions.getAllwithCodeAndVendor.invalidate();
+    },
+    onError: (e) => {
+      const errorMessage = e.data?.zodError?.fieldErrors.content;
+      if (errorMessage && errorMessage[0]) {
+        console.log(errorMessage[0]);
+      } else {
+        console.log("Failed to post! Please try again later.");
+      }
+    },
+  });
+
+  if (!user) return null;
+
+  return (
+
+    <div className="flex w-full gap-3">
+      <input
+        placeholder="Type some emojis!"
+        className="grow bg-transparent outline-none"
+        type="text"
+        value={input}
+        onChange={(e) => setInput(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            if (input !== "") {
+              mutate({ content: input });
+            }
+          }
+        }}
+        disabled={isPosting}
+      />
+      {input !== "" && !isPosting && (
+        <button onClick={() => mutate({ content: input })}>Post</button>
+      )}
+      {isPosting && (
+        <div className="flex items-center justify-center">
+          Submitting...
+        </div>
+      )}
+    </div>
+  );
+};
+
 export default function Home() {
+
+  const { user, isSignedIn } = useUser();
+
   const {data, isLoading} = api.transactions.getAllwithCodeAndVendor.useQuery();
 
 
@@ -22,9 +82,15 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main>
-      <div>
-        <SignInButton />
+      <div className="flex border-b border-slate-400 p-4">
+        {!isSignedIn && (
+          <div className="flex justify-center">
+            <SignInButton />
+          </div>
+        )}
+        {isSignedIn && <CreateTransactionWizard />}
       </div>
+
       <div className="flex grow flex-col overflow-y-scroll">
         {[...data].map((fullTransaction) => (
           <TransactionView {...fullTransaction} key={fullTransaction.id} />
