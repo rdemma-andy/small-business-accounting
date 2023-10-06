@@ -24,9 +24,12 @@ export const AutoComplete: FC<autoCompleteProps> = ({
       if (value.length > 0) {
         const regex = new RegExp(`^${value}`, "i");
         suggestions = data.sort().filter((v: IData) => regex.test(v.name));
+        setIsComponentVisible(true);
+        setSearch({ suggestions, text: value });
       }
-      setIsComponentVisible(true);
-      setSearch({ suggestions, text: value });
+      else{
+
+      }
     };
   
     const suggestionSelected = (value: IData) => {

@@ -30,13 +30,14 @@ const CreateTransactionWizard = () => {
     },
   });
 
+
   if (!user) return null;
 
   return (
 
     <div className="flex w-full gap-3">
       <input
-        placeholder="Type some emojis!"
+        placeholder="Date"
         className="grow bg-transparent outline-none"
         type="text"
         value={input}
@@ -45,14 +46,28 @@ const CreateTransactionWizard = () => {
           if (e.key === "Enter") {
             e.preventDefault();
             if (input !== "") {
-              mutate({ content: input });
+              mutate(
+                { 
+                  date: input,
+                  transactionNumber: 0,
+                  amount: 0,
+                  vendorId: "",
+                  glCodeId: "",
+              });
             }
           }
         }}
         disabled={isPosting}
       />
       {input !== "" && !isPosting && (
-        <button onClick={() => mutate({ content: input })}>Post</button>
+        <button onClick={() => mutate(
+          { 
+            date: input,
+            transactionNumber: 0,
+            amount: 0,
+            vendorId: "",
+            glCodeId: "",
+        })}>Post</button>
       )}
       {isPosting && (
         <div className="flex items-center justify-center">
@@ -68,11 +83,14 @@ export default function Home() {
   const { user, isSignedIn } = useUser();
 
   const {data, isLoading} = api.transactions.getAllwithCodeAndVendor.useQuery();
+  const vendors = api.vendors.getAll.useQuery();
 
 
   if(isLoading) return <div>is Loading...</div>
 
-  if(!data) return <div>Something Went Wrong</div>
+  if(!user) return <div className="flex justify-center"><SignInButton /></div>
+
+  if(!data) return <div className="flex justify-center">Something Went Wrong</div>
 
   return (
     <>
