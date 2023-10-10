@@ -1,18 +1,16 @@
 import react, { ChangeEvent, FC, useState } from "react";
+import { RouterOutputs } from "~/utils/api";
 
 
-interface autoCompleteProps {
-    data: any[];
-  }
 
 interface IData {
   name: string;
   code: string;
 }
 
-export const AutoComplete: FC<autoCompleteProps> = ({
-    data
-  }) => {
+type TransactionData = RouterOutputs["vendors"]["getAll"][number];
+
+export const AutoComplete = (props: TransactionData) => {
     const [search, setSearch] = useState({
       text: "",
       suggestions: []
@@ -23,7 +21,7 @@ export const AutoComplete: FC<autoCompleteProps> = ({
       let suggestions = [];
       if (value.length > 0) {
         const regex = new RegExp(`^${value}`, "i");
-        suggestions = data.sort().filter((v: IData) => regex.test(v.name));
+        suggestions = props.sort().filter((v: IData) => regex.test(v.name));
         setIsComponentVisible(true);
         setSearch({ suggestions, text: value });
       }
