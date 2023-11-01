@@ -22,7 +22,7 @@ export const vendorsRouter = createTRPCRouter({
 
     return vendor;
   }),
-  getAll: publicProcedure.query(({ ctx }) => {
+  getAllWithCodes: publicProcedure.query(({ ctx }) => {
     return ctx.db.vendor.findMany({
       include: {
         gLCode: {
@@ -31,6 +31,10 @@ export const vendorsRouter = createTRPCRouter({
           }
         }
       }
+    });
+  }),
+  getAll: publicProcedure.query(({ ctx }) => {
+    return ctx.db.vendor.findMany({
     });
   }),
 });
