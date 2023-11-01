@@ -11,13 +11,21 @@ import { RouterOutputs, api } from "~/utils/api";
 const CreateTransactionWizard = () => {
   const { user } = useUser();
 
-  const [input, setInput] = useState("");
+  const [amount, setAmount] = useState(0);
+  const [date, setDate] = useState(new Date());
+  const [vendor, setVendor] = useState();
 
   const ctx = api.useContext();
 
   const { mutate, isLoading: isPosting } = api.transactions.create.useMutation({
+    onMutate: () => {
+      console.log("Posting")
+      console.log("Amount: " + amount.toString())
+      console.log("Date: " + date.getDate().toString())
+      console.log(date)
+    },
     onSuccess: () => {
-      setInput("");
+      setAmount(0);
       void ctx.transactions.getAllwithCodeAndVendor.invalidate();
     },
     onError: (e) => {
@@ -31,6 +39,8 @@ const CreateTransactionWizard = () => {
   });
 
 
+
+
   if (!user) return null;
 
   return (
@@ -39,18 +49,18 @@ const CreateTransactionWizard = () => {
       <input
         placeholder="Date"
         className="grow bg-transparent outline-none"
-        type="text"
-        value={input}
-        onChange={(e) => setInput(e.target.value)}
+        type="number"
+        value={amount}
+        onChange={(e) => setAmount(parseFloat(e.target.value))}
         onKeyDown={(e) => {
           if (e.key === "Enter") {
             e.preventDefault();
-            if (input !== "") {
+            if (amount !== 0) {
               mutate(
                 { 
-                  date: input,
+                  date: date.toDateString(),
                   transactionNumber: 0,
-                  amount: 0,
+                  amount: amount,
                   vendorId: "",
                   glCodeId: "",
               });
@@ -59,12 +69,21 @@ const CreateTransactionWizard = () => {
         }}
         disabled={isPosting}
       />
-      {input !== "" && !isPosting && (
+      <label htmlFor="inputDate"> Enter a date</label>
+      <input
+        type = "date"
+        id = "inputDate"
+        name = "inputDate"
+        onChange={(e) => {setDate(new Date(e.target.value))}
+      }
+        disabled={isPosting}
+      />
+      {amount !== 0 && !isPosting && (
         <button onClick={() => mutate(
           { 
-            date: input,
+            date: date.toDateString(),
             transactionNumber: 0,
-            amount: 0,
+            amount: amount,
             vendorId: "",
             glCodeId: "",
         })}>Post</button>
